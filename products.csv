@@ -1,7 +1,6 @@
-﻿id,name,quantity,price,seller
+id,name,quantity,price,seller
 1,pen,100,10,cloud
 2,book,25,60,vidya
 3,One Plus,100,45000,OP
 4,Samsung,500,10000,SM
-5,Oppo,200,15000,OZ
-6,LG G60,50,30000,Cloud
+5,Vivo,200,15000,OZ
