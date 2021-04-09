@@ -1,2 +1,2 @@
-ID,username,password,name,address,contact
-1,aaa,pass123,aaa,street no. 1,9999999999
+ID,username,password,name,address,contact,email
+1,aaa,pass123,aaa,banashankari,9999999999,aaa@yahoo.com
