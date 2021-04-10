@@ -38,7 +38,10 @@ class User:
                     line_count += 1
                     if row[1]==self.username:
                         usercart_dict=json.loads(row[2])
-                        usercart_dict[key]=value
+                        if key in usercart_dict:
+                            usercart_dict[key]+=value
+                        else:
+                            usercart_dict[key]=value
                         #print(usercart_dict)
             file.close()
         usercart_json=json.dumps(usercart_dict)
@@ -206,6 +209,7 @@ def main():
                 Us.delete_cart()
             
             elif choice==6:
+                print("User Logged Out Successfully")
                 login=0
 
 if __name__=="__main__":
