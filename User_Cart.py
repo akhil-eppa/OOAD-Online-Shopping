@@ -18,10 +18,10 @@ class User:
             line_count = 0
             for row in csv_reader:
                 if line_count == 0:
-                    line_count += 1
+                    line_count += 1 # To skip header row
                 else:
                     if row[1]==self.username:
-                        usercart_dict=json.loads(row[2])
+                        usercart_dict=json.loads(row[2]) # JSON to Python
                         print(usercart_dict)
                     line_count += 1
             file.close()
@@ -33,20 +33,20 @@ class User:
             csv_reader=csv.reader(file, delimiter=',')
             for row in csv_reader:
                 if line_count == 0:
-                    line_count += 1
+                    line_count += 1 # To skip header row
                 else:
-                    line_count += 1
+                    line_count += 1 # To keep count of row number
                     if row[1]==self.username:
-                        usercart_dict=json.loads(row[2])
-                        if key in usercart_dict:
-                            usercart_dict[key]+=value
+                        usercart_dict=json.loads(row[2]) #JSON to Python
+                        if key in usercart_dict: # Check if product already present in cart
+                            usercart_dict[key]+=value #Increase product count if already in cart
                         else:
-                            usercart_dict[key]=value
+                            usercart_dict[key]=value #Add product to cart
                         #print(usercart_dict)
             file.close()
-        usercart_json=json.dumps(usercart_dict)
+        usercart_json=json.dumps(usercart_dict) #Python to JSON to save in updated csv
         df=pd.read_csv('cart.csv')
-        df.loc[line_count-2,"cart_items"]=usercart_json
+        df.loc[line_count-2,"cart_items"]=usercart_json #Update JSON string here
         df.to_csv("cart.csv",index=False)
         print("Successfully Added Item To Cart!")
     
@@ -57,19 +57,19 @@ class User:
             csv_reader=csv.reader(file, delimiter=',')
             for row in csv_reader:
                 if line_count == 0:
-                    line_count += 1
+                    line_count += 1 # To skip header row
                 else:
                     line_count += 1
                     if row[1]==self.username:
-                        usercart_dict=json.loads(row[2])
+                        usercart_dict=json.loads(row[2]) #JSON to Python
                         if key in usercart_dict:
-                            usercart_dict[key]=value
+                            usercart_dict[key]=value #Update/Modify Value
                         else:
                             print("Item Not In Cart. Please Add In Cart In Order To Modify!")
             file.close()
-        usercart_json=json.dumps(usercart_dict)
+        usercart_json=json.dumps(usercart_dict) #Python to JSON to save in updated csv
         df=pd.read_csv('cart.csv')
-        df.loc[line_count-2,"cart_items"]=usercart_json
+        df.loc[line_count-2,"cart_items"]=usercart_json #Update JSON string here
         df.to_csv("cart.csv",index=False)
         print("Successfully Modified Item In Cart!")
 
@@ -80,20 +80,20 @@ class User:
             csv_reader=csv.reader(file, delimiter=',')
             for row in csv_reader:
                 if line_count == 0:
-                    line_count += 1
+                    line_count += 1 # To skip header row
                 else:
                     line_count += 1
                     if row[1]==self.username:
-                        usercart_dict=json.loads(row[2])
-                        usercart_dict.clear()
+                        usercart_dict=json.loads(row[2]) #JSON to Python
+                        usercart_dict.clear() #Clear dictionary
             file.close()
-        usercart_json=json.dumps(usercart_dict)
+        usercart_json=json.dumps(usercart_dict) #Python to JSON to save in updated csv
         df=pd.read_csv('cart.csv')
-        df.loc[line_count-2,"cart_items"]=usercart_json
+        df.loc[line_count-2,"cart_items"]=usercart_json #Update JSON string here
         df.to_csv("cart.csv",index=False)
         print("Successfully Deleted Cart!")
 
-    def display_products(self):
+    def display_products(self): # Replicated from Product_Management.py
         with open('products.csv') as file:
             csv_reader=csv.reader(file, delimiter=',')
             product_count=0
@@ -106,7 +106,7 @@ class User:
                     print(f'Product Price -> {row[3]}')
                     print(f'Product Seller -> {row[4]}\n')
                 product_count+=1
-            self.product_count=product_count-1#To exclude header fields
+            self.product_count=product_count-1 #To exclude header fields
             file.close()
 
     
@@ -140,10 +140,10 @@ def main():
             user=input("Enter Username:")
             if user=="exit":
                 break
-            if user in users:
+            if user in users: #Duplicate Username Condition
                 print("Username Already Taken!")
                 continue
-            else:
+            else: #Personal details
                 user_passwd=input("Enter Password: ")
                 name=input("Enter Name: ")
                 address=input("Enter Address: ")
@@ -152,7 +152,7 @@ def main():
                 newuser_details=[str(n+1),user,user_passwd, name,address,int(contact),email]
                 cart_dict={}
                 cart_json=json.dumps(cart_dict)
-                newuser_cartdetails=[str(n+1),user,cart_json]
+                newuser_cartdetails=[str(n+1),user,cart_json] # For entry in cart.csv every time new registration is made
                 with open('users.csv','a',newline='') as file:
                     writer_object=writer(file)
                     writer_object.writerow(newuser_details)
@@ -173,7 +173,7 @@ def main():
         df_new=df[user_details]
         user_passwd=df_new['password'].values==password
         df_new=df_new[user_passwd]
-        if len(df_new)!=0:
+        if len(df_new)!=0: 
             print("User Login Successful!\n")
             l_flag=0
             login_success=1
