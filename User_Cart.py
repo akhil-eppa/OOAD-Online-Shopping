@@ -1,9 +1,13 @@
+'''
+
+'''
+
 import pandas as pd
 import csv
 import json
 from csv import writer
 from csv import reader
-
+from functions import *
 class User:
     def __init__(self, username, password,name,address,contact,email):
         self.username=username
@@ -14,7 +18,7 @@ class User:
         self.email=email
     def view_cart(self):
         with open('cart.csv','r') as file:
-            csv_reader=csv.reader(file, delimiter=',') 
+            csv_reader=csv.reader(file, delimiter=',')
             line_count = 0
             for row in csv_reader:
                 if line_count == 0:
@@ -25,8 +29,9 @@ class User:
                         print(usercart_dict)
                     line_count += 1
             file.close()
-    
+
     def add_cart(self,key,value):
+        #print("add cart being called")
         usercart_dict=dict()
         line_count = 0
         with open('cart.csv','r') as file:
@@ -48,8 +53,9 @@ class User:
         df=pd.read_csv('cart.csv')
         df.loc[line_count-2,"cart_items"]=usercart_json #Update JSON string here
         df.to_csv("cart.csv",index=False)
+        #print(df)
         print("Successfully Added Item To Cart!")
-    
+
     def modify_cart(self,key,value):
         usercart_dict=dict()
         line_count = 0
@@ -108,9 +114,86 @@ class User:
                 product_count+=1
             self.product_count=product_count-1 #To exclude header fields
             file.close()
+    #add to class and change to self
+    def w_add_item(self,key=-1):
+        if key==-1:
+            key=input("Enter The Name Of The Product You Wish To Add:")
+            if not item_in_inventory(key):
+                print("Item Not Present in Catalogue");
+                print("Try Again\n");
+                self.w_add_item()
+                return;
+        value=int(input("Enter The Quantity You Wish To Add:"))
 
-    
-             
+        stock=get_stock_value(key)
+        if value<=stock:
+            self.add_cart(key,value)
+        else:
+            print (f'Only {stock} items available');
+            print (f'Please try again with a number within the stock limit')
+            self.w_add_item(key)
+
+    #add to class and change to self
+    def w_mod_item(self,key=-1):
+        if key==-1:
+            key=input("Enter The Name Of The Product You Wish To Modify:")
+            if not item_in_inventory(key):
+                print("Item Not Present in Catalogue");
+                print("Try Again\n");
+                self.w_mod_item()
+                return;
+        value=int(input("Enter The Changed Quantity:"))
+
+        stock=get_stock_value(key)
+
+        if value<=stock:
+            self.modify_cart(key,value)
+        else:
+            print (f'Only {stock} items available');
+            print (f'Please try again with a number within the stock limit')
+            self.w_mod_item(key)
+
+    def checkout(self):
+        cart_df=pd.read_csv("cart.csv")
+        user=cart_df.loc[cart_df['username']==self.username]
+        cart=user.iloc[0]['cart_items']
+        d_cart=json.loads(cart);
+        if not d_cart:
+            print("Cart is Empty, Checkout is not possible!");
+            return;
+        #ensure all items are present in products
+        #ensure all items are in stock
+        checkout_fail=0 #
+        for key,val in d_cart.items():
+            if not item_in_inventory(key):
+                print(f"{key} not present in inventory")
+                checkout_fail=1
+                continue;
+            stock=get_stock_value(key)
+            if stock <= val:
+                print(f"Only {stock} units of '{key}' are present in inventory")
+                checkout_fail=1
+        if checkout_fail:
+            return;
+        prod_df=pd.read_csv("products.csv")
+
+        #generate billing
+        total=0;
+        print("   Product  Quantity   Price  Amount");
+        for key,val in d_cart.items():
+             product=prod_df.loc[prod_df['name']==key]
+             price=product.iloc[0]['price']
+             amt=price*val
+
+             total+=amt
+             print("%10s%10s%8d%8d" %(key,val,price,amt))
+
+             #reducing quantity in inventory
+             prod_df.loc[prod_df['name']==key,'quantity']=prod_df.loc[prod_df['name']==key,'quantity']-val;
+        print("%20sTotal =>%8d" %('',total));
+
+        prod_df.to_csv("products.csv",index=False)
+        delete_cart(self)
 
 def main():
     df=pd.read_csv("users.csv")
@@ -169,11 +252,11 @@ def main():
         print("------User Login Portal---------")
         username=input("Enter username: ")
         password=input("Enter password: ")
-        user_details=df['username'].values==username        
+        user_details=df['username'].values==username
         df_new=df[user_details]
         user_passwd=df_new['password'].values==password
         df_new=df_new[user_passwd]
-        if len(df_new)!=0: 
+        if len(df_new)!=0:
             print("User Login Successful!\n")
             l_flag=0
             login_success=1
@@ -186,31 +269,32 @@ def main():
     if login:
         Us=User(username,password,df_new['name'],df_new['address'],df_new['contact'], df_new['email'])
         while(login):
-            print("\nWhat Do You Wish To Do?\n-------------------------\n1. View Products\n2. View Cart\n3. Add Cart \n4. Modify Cart\n5. Delete Cart\n6. Logout")
+            print("\nWhat Do You Wish To Do?\n-------------------------")
+            print("1. View Products\n2. View Cart\n3. Add Cart \n4. Modify Cart\n5. Delete Cart\n6. Checkout\n7. Logout")
             choice=int(input("Enter your choice: "))
 
             if choice==1:
                 Us.display_products()
-            
+
             elif choice==2:
                 Us.view_cart()
-            
+
             elif choice==3:
-                key=input("Enter The Name Of The Product You Wish To Add:")
-                value=int(input("Enter The Quantity You Wish To Add(Check Stock Limits):"))
-                Us.add_cart(key,value)
-            
+                Us.w_add_item();
+
             elif choice==4:
-                key=input("Enter The Name Of The Product You Wish To Modify:")
-                value=int(input("Enter The Changed QuantityCheck Stock Limits):"))
-                Us.modify_cart(key,value)
-            
+                Us.w_mod_item();
+
             elif choice==5:
                 Us.delete_cart()
-            
+
             elif choice==6:
+                Us.checkout()
+
+            elif choice==7:
                 print("User Logged Out Successfully")
                 login=0
+
 
 if __name__=="__main__":
     main()
