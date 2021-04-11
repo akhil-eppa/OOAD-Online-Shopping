@@ -8,6 +8,7 @@ import json
 from csv import writer
 from csv import reader
 from functions import *
+
 class User:
     def __init__(self, username, password,name,address,contact,email):
         self.username=username
@@ -16,6 +17,7 @@ class User:
         self.address=address
         self.contact=contact
         self.email=email
+
     def view_cart(self):
         with open('cart.csv','r') as file:
             csv_reader=csv.reader(file, delimiter=',')
@@ -26,12 +28,11 @@ class User:
                 else:
                     if row[1]==self.username:
                         usercart_dict=json.loads(row[2]) # JSON to Python
-                        print(usercart_dict)
+                        cart_total(usercart_dict,0)
                     line_count += 1
             file.close()
 
     def add_cart(self,key,value):
-        #print("add cart being called")
         usercart_dict=dict()
         line_count = 0
         with open('cart.csv','r') as file:
@@ -124,7 +125,10 @@ class User:
                 self.w_add_item()
                 return
         value=int(input("Enter The Quantity You Wish To Add:"))
-
+        if (value<=0):
+            print("Please Enter A Quantity Greater than 0")
+            self.w_add_item(key=key)
+            return
         stock=get_stock_value(key)
         if value<=stock:
             self.add_cart(key,value)
@@ -143,7 +147,10 @@ class User:
                 self.w_mod_item()
                 return
         value=int(input("Enter The Changed Quantity:"))
-
+        if (value<=0):
+            print("Please Enter A Quantity Greater than 0")
+            self.w_add_item(key=key)
+            return
         stock=get_stock_value(key)
 
         if value<=stock:
@@ -170,30 +177,15 @@ class User:
                 checkout_fail=1
                 continue
             stock=get_stock_value(key)
-            if stock <= val:
+            if stock < val:
                 print(f"Only {stock} units of '{key}' are present in inventory")
                 checkout_fail=1
         if checkout_fail:
             return
-        prod_df=pd.read_csv("products.csv")
-
         #generate billing
-        total=0
-        print("   Product  Quantity   Price  Amount")
-        for key,val in d_cart.items():
-             product=prod_df.loc[prod_df['name']==key]
-             price=product.iloc[0]['price']
-             amt=price*val
+        cart_total(d_cart,1)
+        self.delete_cart()
 
-             total+=amt
-             print("%10s%10s%8d%8d" %(key,val,price,amt))
-
-             #reducing quantity in inventory
-             prod_df.loc[prod_df['name']==key,'quantity']=prod_df.loc[prod_df['name']==key,'quantity']-val
-        print("%20sTotal =>%8d" %('',total))
-
-        prod_df.to_csv("products.csv",index=False)
-        delete_cart(self)
 
 def main():
     df=pd.read_csv("users.csv")
@@ -298,4 +290,3 @@ def main():
 
 if __name__=="__main__":
     main()
-    
