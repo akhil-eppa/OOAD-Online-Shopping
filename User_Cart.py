@@ -1,7 +1,3 @@
-'''
-
-'''
-
 import pandas as pd
 import csv
 import json
@@ -70,9 +66,11 @@ class User:
                     if row[1]==self.username:
                         usercart_dict=json.loads(row[2]) #JSON to Python
                         if key in usercart_dict:
+                            print("item present?")
                             usercart_dict[key]=value #Update/Modify Value
                         else:
                             print("Item Not In Cart. Please Add In Cart In Order To Modify!")
+                            return
             file.close()
         usercart_json=json.dumps(usercart_dict) #Python to JSON to save in updated csv
         df=pd.read_csv('cart.csv')
@@ -115,7 +113,8 @@ class User:
                 product_count+=1
             self.product_count=product_count-1 #To exclude header fields
             file.close()
-    #add to class and change to self
+
+
     def w_add_item(self,key=-1):
         if key==-1:
             key=input("Enter The Name Of The Product You Wish To Add:")
@@ -124,7 +123,13 @@ class User:
                 print("Try Again\n")
                 self.w_add_item()
                 return
-        value=int(input("Enter The Quantity You Wish To Add:"))
+        try:
+            value=int(input("Enter The Quantity You Wish To Add:"))
+        except:
+            print("Please Enter a Number Greater than 0")
+            self.w_add_item(key)
+            return
+
         if (value<=0):
             print("Please Enter A Quantity Greater than 0")
             self.w_add_item(key=key)
@@ -137,7 +142,6 @@ class User:
             print (f'Please try again with a number within the stock limit')
             self.w_add_item(key)
 
-    #add to class and change to self
     def w_mod_item(self,key=-1):
         if key==-1:
             key=input("Enter The Name Of The Product You Wish To Modify:")
@@ -146,7 +150,14 @@ class User:
                 print("Try Again\n")
                 self.w_mod_item()
                 return
-        value=int(input("Enter The Changed Quantity:"))
+
+        try:
+            value=int(input("Enter The Changed Quantity:"))
+        except:
+            print("Please Enter a Number Greater than 0")
+            self.w_mod_item(key)
+            return
+
         if (value<=0):
             print("Please Enter A Quantity Greater than 0")
             self.w_add_item(key=key)
@@ -159,6 +170,18 @@ class User:
             print (f'Only {stock} items available')
             print (f'Please try again with a number within the stock limit')
             self.w_mod_item(key)
+
+    def address_choice(self):
+        print("Would you like to continue with the address specified for delivery?(Y/N)")
+        ch=input()
+        if ch =='Y' or ch=='y':
+            return self.address.iloc[0]
+        elif ch =='N' or ch=='n':
+            print("Enter the new address")
+            address=input()
+            return address
+        else:
+            self.address_choice()
 
     def checkout(self):
         cart_df=pd.read_csv("cart.csv")
@@ -183,7 +206,18 @@ class User:
         if checkout_fail:
             return
         #generate billing
+        print("This is the address specified in user details")
+        address=self.address_choice()
+
+        ch_df=pd.read_csv("checkout.csv")
+        checkout_info={"username":self.username,"address":address,"contact":int(self.contact),"status":"Unshipped","items":d_cart}
+        ch_df=ch_df.append(checkout_info, ignore_index = True)
+
+        ch_df.to_csv('checkout.csv',index=False)
+        print("\n\n---------------BILL------------------")
         cart_total(d_cart,1)
+        print("-------------------------------------");
+        
         self.delete_cart()
 
 
