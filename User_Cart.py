@@ -119,17 +119,17 @@ class User:
         if key==-1:
             key=input("Enter The Name Of The Product You Wish To Add:")
             if not item_in_inventory(key):
-                print("Item Not Present in Catalogue");
-                print("Try Again\n");
+                print("Item Not Present in Catalogue")
+                print("Try Again\n")
                 self.w_add_item()
-                return;
+                return
         value=int(input("Enter The Quantity You Wish To Add:"))
 
         stock=get_stock_value(key)
         if value<=stock:
             self.add_cart(key,value)
         else:
-            print (f'Only {stock} items available');
+            print (f'Only {stock} items available')
             print (f'Please try again with a number within the stock limit')
             self.w_add_item(key)
 
@@ -138,10 +138,10 @@ class User:
         if key==-1:
             key=input("Enter The Name Of The Product You Wish To Modify:")
             if not item_in_inventory(key):
-                print("Item Not Present in Catalogue");
-                print("Try Again\n");
+                print("Item Not Present in Catalogue")
+                print("Try Again\n")
                 self.w_mod_item()
-                return;
+                return
         value=int(input("Enter The Changed Quantity:"))
 
         stock=get_stock_value(key)
@@ -149,7 +149,7 @@ class User:
         if value<=stock:
             self.modify_cart(key,value)
         else:
-            print (f'Only {stock} items available');
+            print (f'Only {stock} items available')
             print (f'Please try again with a number within the stock limit')
             self.w_mod_item(key)
 
@@ -157,10 +157,10 @@ class User:
         cart_df=pd.read_csv("cart.csv")
         user=cart_df.loc[cart_df['username']==self.username]
         cart=user.iloc[0]['cart_items']
-        d_cart=json.loads(cart);
+        d_cart=json.loads(cart)
         if not d_cart:
-            print("Cart is Empty, Checkout is not possible!");
-            return;
+            print("Cart is Empty, Checkout is not possible!")
+            return
         #ensure all items are present in products
         #ensure all items are in stock
         checkout_fail=0 #
@@ -168,18 +168,18 @@ class User:
             if not item_in_inventory(key):
                 print(f"{key} not present in inventory")
                 checkout_fail=1
-                continue;
+                continue
             stock=get_stock_value(key)
             if stock <= val:
                 print(f"Only {stock} units of '{key}' are present in inventory")
                 checkout_fail=1
         if checkout_fail:
-            return;
+            return
         prod_df=pd.read_csv("products.csv")
 
         #generate billing
-        total=0;
-        print("   Product  Quantity   Price  Amount");
+        total=0
+        print("   Product  Quantity   Price  Amount")
         for key,val in d_cart.items():
              product=prod_df.loc[prod_df['name']==key]
              price=product.iloc[0]['price']
@@ -189,8 +189,8 @@ class User:
              print("%10s%10s%8d%8d" %(key,val,price,amt))
 
              #reducing quantity in inventory
-             prod_df.loc[prod_df['name']==key,'quantity']=prod_df.loc[prod_df['name']==key,'quantity']-val;
-        print("%20sTotal =>%8d" %('',total));
+             prod_df.loc[prod_df['name']==key,'quantity']=prod_df.loc[prod_df['name']==key,'quantity']-val
+        print("%20sTotal =>%8d" %('',total))
 
         prod_df.to_csv("products.csv",index=False)
         delete_cart(self)
@@ -280,10 +280,10 @@ def main():
                 Us.view_cart()
 
             elif choice==3:
-                Us.w_add_item();
+                Us.w_add_item()
 
             elif choice==4:
-                Us.w_mod_item();
+                Us.w_mod_item()
 
             elif choice==5:
                 Us.delete_cart()
