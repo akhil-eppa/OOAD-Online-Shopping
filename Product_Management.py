@@ -172,8 +172,11 @@ def main():
         Ad.display_products()
         while(login):
             print("\n-------------------------\n1. View Products\n2. Add Product\n3. Delete Product \n4. Modify Product\n5. Exit")
-            choice=int(input("Enter your choice: "))
-        
+            try:
+                choice=int(input("Enter your choice: "))
+            except:
+                print("Incorrect Format")
+                continue
             if choice==1:
                 Ad.display_products()
             elif choice==2:
