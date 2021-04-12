@@ -48,7 +48,7 @@ class User:
             file.close()
         usercart_json=json.dumps(usercart_dict) #Python to JSON to save in updated csv
         df=pd.read_csv('cart.csv')
-        df.loc[line_count-2,"cart_items"]=usercart_json #Update JSON string here
+        df.loc[line_count-3,"cart_items"]=usercart_json #Update JSON string here
         df.to_csv("cart.csv",index=False)
         #print(df)
         print("Successfully Added Item To Cart!")
@@ -66,7 +66,7 @@ class User:
                     if row[1]==self.username:
                         usercart_dict=json.loads(row[2]) #JSON to Python
                         if key in usercart_dict:
-                            print("item present?")
+                            print("Item Present")
                             usercart_dict[key]=value #Update/Modify Value
                         else:
                             print("Item Not In Cart. Please Add In Cart In Order To Modify!")
@@ -74,7 +74,7 @@ class User:
             file.close()
         usercart_json=json.dumps(usercart_dict) #Python to JSON to save in updated csv
         df=pd.read_csv('cart.csv')
-        df.loc[line_count-2,"cart_items"]=usercart_json #Update JSON string here
+        df.loc[line_count-3,"cart_items"]=usercart_json #Update JSON string here
         df.to_csv("cart.csv",index=False)
         print("Successfully Modified Item In Cart!")
 
@@ -94,7 +94,7 @@ class User:
             file.close()
         usercart_json=json.dumps(usercart_dict) #Python to JSON to save in updated csv
         df=pd.read_csv('cart.csv')
-        df.loc[line_count-2,"cart_items"]=usercart_json #Update JSON string here
+        df.loc[line_count-3,"cart_items"]=usercart_json #Update JSON string here
         df.to_csv("cart.csv",index=False)
         print("Successfully Deleted Cart!")
 
